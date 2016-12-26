@@ -1,10 +1,16 @@
 #!/usr/bin/env python
 """
 Name = Ankita
-version = 1.0
+version = 2.0
 Dependency = python-qt4, python-pil
 Description = A well designed Paint program in PyQt4
-
+Changes :
+        Added Brush Size, Fill Opacity, Line Width Adjusting
+        Added Text tool, color picker
+        Color palette is editable
+        New Image, save as, Open Image etc options added
+        Bug in drawing arc fixed
+..................................................................................
    Copyright (C) 2016 Arindam Chaudhuri <ksharindam@gmail.com>
   
    This program is free software: you can redistribute it and/or modify
@@ -19,18 +25,27 @@ Description = A well designed Paint program in PyQt4
   
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+..................................................................................
 """
+# TODO:
+#       Eraser
+#       Brush texture
+#       Rounded Rect
+#       Spray
+#       Bezier Curve
+
 
 import sys
 import ui_ankita
 from PIL import Image, ImageDraw, ImageQt
 
-from PyQt4.QtCore import pyqtSignal, QPoint, Qt
-from PyQt4.QtGui import QApplication, QMainWindow, QLabel, QHBoxLayout, QPixmap, QButtonGroup
-from PyQt4.QtGui import QPainter, QPen, QBrush, qRgb, QColor, QCursor
-from PyQt4.QtGui import QFileDialog
+from PyQt4.QtCore import pyqtSignal, QPoint, Qt, QSettings
+from PyQt4.QtGui import QApplication, QMainWindow, QLabel, QHBoxLayout, QGridLayout, QPixmap
+from PyQt4.QtGui import QPainter, QPainterPath, QPen, QBrush, qRgb, QColor, QCursor, QFont, QFontMetrics
+from PyQt4.QtGui import QFontComboBox, QSlider, QLineEdit
+from PyQt4.QtGui import QDialog, QDialogButtonBox, QFileDialog, QColorDialog, QButtonGroup
 
-clr_array = [
+default_clr_array = [
 "#ffffff", "#ffffff", "#cccccc", "#999999", "#666666", "#000000",
 "#e066ff", "#d15fee", "#9b30ff", "#912cee", "#7d26cd", "#551a8b",
 "#4169e1", "#3a5fcd", "#0000ff", "#0000ee", "#0000cd", "#00008b",
@@ -57,7 +72,7 @@ class Label(QLabel):
     def __init__(self, parent):
         super(Label, self).__init__(parent)
         self.setSizePolicy(0, 0) #QSizePolicy.Fixed
-        self.pixmap = QPixmap(640,480)
+        self.pixmap = QPixmap(800,600)
         self.pixmap.fill()
         self.setMouseTracking(True)
         self.mouse_pressed = False
@@ -67,6 +82,7 @@ class Label(QLabel):
         self.setCursor(QCursor(QPixmap(":/cursor_pencil.png")))
         #self.setCursor(brush_cursor(8))
         self.update()
+        self.updateHistory()
     def mousePressEvent(self, ev):
         self.mouse_pressed = True
         self.mouseClicked.emit(QPoint(ev.x()/self.scale, ev.y()/self.scale), True)
@@ -76,14 +92,16 @@ class Label(QLabel):
     def mouseReleaseEvent(self, ev):
         self.mouse_pressed = False
         self.mouseReleased.emit(QPoint(ev.x()/self.scale, ev.y()/self.scale))
+
     def setPixmap(self, pixmap):
         if self.scale != 1:
             pixmap = pixmap.scaledToWidth(self.pixmap.width()*self.scale)
         super(Label, self).setPixmap(pixmap)
     def update(self):
         self.setPixmap(self.pixmap)
+
     def updateHistory(self):
-        """ Appends current pixmap to undo list """
+        """ Appends copy of current pixmap to undo list """
         pixmap = self.pixmap.copy()
         if len(self.history) > self.current_index+1:
             del self.history[self.current_index+1:]
@@ -98,40 +116,61 @@ class Label(QLabel):
         self.pixmap = self.history[self.current_index-1].copy()
         self.update()
         self.current_index -= 1
-
+        self.text_input = False
     def redo(self):
         if self.current_index==len(self.history)-1:
             return
         self.pixmap = self.history[self.current_index+1].copy()
         self.update()
         self.current_index += 1
+        self.text_input = False
+
 
 class ColorGrid(QLabel):
     """ Color Palette that holds many colors. Emit signal with QColor when a color is clicked"""
     colorSelected = pyqtSignal(QColor)
     def __init__(self, parent):
         super(ColorGrid, self).__init__(parent)
+        self.setSizePolicy(0, 0) #QSizePolicy.Fixed
         self.column = 6
-        self.row = 3
-        self.pixmap = QPixmap(self.column*24+1,self.column*24+1)
+        self.row = 6
+        self.box_size = 24
+        self.pixmap = QPixmap(self.column*self.box_size+1,self.row*self.box_size+1)
         self.pixmap.fill()
+        self.drawPalette()
+        self.edit_colors = False
+    def drawPalette(self):
         painter = QPainter()
         painter.begin(self.pixmap)
         for index,color in enumerate(clr_array):
             painter.setBrush(QBrush(QColor(color)))
-            painter.drawRect((index%self.column)*24,(index//self.column)*24, 24,24)
-        painter.drawLine(0,0,24,24)
-        painter.drawLine(0,24,24,0)
+            painter.drawRect((index%self.column)*self.box_size,
+                            (index//self.column)*self.box_size, self.box_size,self.box_size)
+        painter.drawLine(0,0,self.box_size,self.box_size)
+        painter.drawLine(0,self.box_size,self.box_size,0)
         painter.end()
         self.setPixmap(self.pixmap)
+
     def mousePressEvent(self, ev):
-        if ev.x() == 0 or ev.y() == 0: return
-        index = ((ev.y()-1)//24) * self.column + (ev.x()-1)//24
+        x, y = ev.x(), ev.y()
+        if x == 0 or y == 0: return
+        index = ((y-1)//self.box_size) * self.column + (x-1)//self.box_size
         if index >= len(clr_array): return
         color = QColor(clr_array[index])
+        if self.edit_colors:
+            if index == 0: return
+            color = QColorDialog.getColor(color, self)
+            if color.isValid():
+                clr_array[index] = color
+                self.drawPalette()
+            return
         if index == 0:
             color.setAlpha(0)
         self.colorSelected.emit(color)
+    def resetPalette(self):
+        global clr_array
+        clr_array = default_clr_array[:]
+        self.drawPalette()
 
 class Window(ui_ankita.Ui_MainWindow):
     """ This class creates main window and all child widgets """
@@ -140,31 +179,52 @@ class Window(ui_ankita.Ui_MainWindow):
         self.filename = ""
         self.points = []
         self.btnMode = None
-        self.brush_color = QColor(255,255,255,0)
+        self.line_width = 0
+        self.brush_size = 8
+        self.brush_color = QColor(0,0,0,0)
         self.painter = QPainter()
         self.pen = QPen()
-        self.pen.setCapStyle(0x20) # Qt.RountCap
+        self.pen.setCapStyle(Qt.RoundCap)
         self.brush = QBrush(self.brush_color)
+        self.settings = QSettings()
+        global clr_array
+        if self.settings.contains("ColorPalette"):
+            clr_array = list(self.settings.value("ColorPalette").toStringList())
+        else:
+            clr_array = default_clr_array[:]
     def setupUi(self, win):
         super(Window, self).setupUi(win)
         # Change some widget property
         self.labelLine.setStyleSheet("QLabel{background-color: #000000;}")
-        self.gridLayout.setRowStretch(4,1)
+        self.gridLayout.setRowStretch(5,1)
         # Add additional widgets
+        self.gridLayout.removeWidget(self.checkEditColors)
+        self.status = QLabel("Pointer : 0, 0", win)
+        self.status.setFixedSize(140, 16)
+        self.menubar.setCornerWidget(self.status)
         self.canvas = Label(win)
         hLayout = QHBoxLayout(self.scrollWidget)
         hLayout.addWidget(self.canvas)
+        self.color_picker = ColorPicker(self.canvas.window())
+        self.gridLayout.addWidget(self.color_picker,0,1,1,1)
         self.palette = ColorGrid(win)
         self.gridLayout.addWidget(self.palette,3,0,1,2)
+        self.gridLayout.addWidget(self.checkEditColors,4,0,1,2)
         # Create Menu Actions
+        self.menuFile.addAction("New", self.newImage, "Ctrl+N")
+        self.menuFile.addAction("New...", self.newWithSize, "Ctrl+Shift+N")
+        self.menuFile.addAction("Open", self.openImage, "Ctrl+O")
         self.menuFile.addAction("Save", self.saveImage, "Ctrl+S")
+        self.menuFile.addAction("Save As..", self.saveImageAs, "Ctrl+Shift+S")
         self.menuFile.addAction("Quit", win.close, "Ctrl+Q")
         self.menuEdit.addAction("Undo", self.canvas.undo, "Ctrl+Z")
         self.menuEdit.addAction("Redo", self.canvas.redo, "Ctrl+Y")
+        self.menuEdit.addAction("Reset Palette", self.palette.resetPalette)
         # Add buttons to button group
         self.btnGroup = QButtonGroup(win)
         for button in [self.pencilBtn, self.brushBtn, self.floodfillBtn, self.lineBtn,
-                   self.rectBtn, self.ovalBtn, self.arcBtn, self.polylineBtn, self.polygonBtn]:
+                   self.rectBtn, self.ovalBtn, self.arcBtn, self.polylineBtn, self.polygonBtn,
+                   self.textBtn]:
             self.btnGroup.addButton(button)
         # Connect Shapes/brushes with signals
         self.btnGroup.buttonPressed.connect(self.onBtnClick)
@@ -173,8 +233,14 @@ class Window(ui_ankita.Ui_MainWindow):
         self.canvas.mouseMoved.connect(self.setStatus)
         self.canvas.mouseReleased.connect(self.onRelease)
         self.palette.colorSelected.connect(self.setColor)
-        self.zoominBtn.clicked.connect(self.zoomIn)
-        self.zoomoutBtn.clicked.connect(self.zoomOut)
+        self.color_picker.colorSelected.connect(self.setColor)
+        self.checkEditColors.toggled.connect(self.toggleColorEdit)
+        self.brushSlider.valueChanged.connect(self.setBrushSize)
+        self.lineSlider.valueChanged.connect(self.setLineWidth)
+        self.opacitySlider.valueChanged.connect(self.setFillOpacity)
+        self.zoomSlider.valueChanged.connect(self.setZoom)
+        self.undoBtn.clicked.connect(self.canvas.undo)
+        self.redoBtn.clicked.connect(self.canvas.redo)
         # This will be after connecting signal of that button
         self.pencilBtn.setChecked(True)
     def onBtnClick(self, button):
@@ -184,16 +250,50 @@ class Window(ui_ankita.Ui_MainWindow):
             self.canvas.updateHistory()
         if self.btnMode == "polyline":
             self.canvas.updateHistory()
+        if self.textBtn.isChecked():
+            for widget in [self.labelText, self.textEdit, self.labelTextFont,
+                           self.fontComboBox, self.labelFontSize, self.fontSizeSlider]:
+                self.verticalLayout_4.removeWidget(widget)
+                widget.deleteLater()
         self.canvas.update()
         self.btnMode = None
         self.points = []
-        self.pen.setWidth(0)
-        if self.btnGroup.id(button)==-2:
+        if self.btnGroup.id(button)==-2: # Pen
+            self.pen.setWidth(0)
+            self.linecolorBtn.setChecked(True)
             self.canvas.setCursor(QCursor(QPixmap(":/cursor_pencil.png")))
-        elif self.btnGroup.id(button)==-3:
-            self.pen.setWidth(8)
-            self.canvas.setCursor(brush_cursor(8*self.canvas.scale))
+        elif self.btnGroup.id(button)==-3: # Brush
+            self.pen.setWidth(self.brush_size)
+            self.linecolorBtn.setChecked(True)
+            self.canvas.setCursor(brush_cursor(self.brush_size*self.canvas.scale))
+        elif self.btnGroup.id(button)==-4: # Floodfill
+            self.fillcolorBtn.setChecked(True)
+            self.canvas.setCursor(QCursor(QPixmap(":/cursor_plus.png")))
+        elif self.btnGroup.id(button)==-11: # Draw Text
+            self.linecolorBtn.setChecked(True)
+            self.labelText = QLabel("Enter Text :")
+            self.textEdit = QLineEdit(self.frameOptions)
+            self.textEdit.setMaximumWidth(111)
+            self.labelTextFont = QLabel("Text Font :", self.frameOptions)
+            self.fontComboBox = QFontComboBox(self.frameOptions)
+            self.fontComboBox.setMaximumWidth(111)
+            self.fontComboBox.setEditable(False)
+            self.labelFontSize = QLabel("Font Size : 24", self.frameOptions)
+            self.fontSizeSlider = QSlider(Qt.Horizontal, self.frameOptions)
+            self.fontSizeSlider.setMinimum(6)
+            self.fontSizeSlider.setMaximum(72)
+            self.fontSizeSlider.setValue(24)
+            self.verticalLayout_4.addWidget(self.labelText)
+            self.verticalLayout_4.addWidget(self.textEdit)
+            self.verticalLayout_4.addWidget(self.labelTextFont)
+            self.verticalLayout_4.addWidget(self.fontComboBox)
+            self.verticalLayout_4.addWidget(self.labelFontSize)
+            self.verticalLayout_4.addWidget(self.fontSizeSlider)
+            self.textEdit.textChanged.connect(self.drawCursorText)
+            self.fontComboBox.currentFontChanged.connect(self.drawCursorText)
+            self.fontSizeSlider.valueChanged.connect(self.updateFontSize)
         else:
+            self.pen.setWidth(self.line_width)
             self.canvas.setCursor(QCursor(QPixmap(":/cursor_plus.png")))
     def onClick(self, pos, clicked=False):
         """ It is called when mouse is moved or clicked over canvas"""
@@ -215,6 +315,10 @@ class Window(ui_ankita.Ui_MainWindow):
             self.drawpolyline(pos, clicked)
         elif self.btnGroup.checkedId()==-10:
             self.drawpolygon(pos, clicked)
+        elif self.btnGroup.checkedId()==-11:
+            self.drawText(pos, clicked)
+        #elif self.btnGroup.checkedId()==-12:
+        #    self.drawcurve(pos, clicked)
     def onRelease(self):
         if self.btnMode == "pencil":
             self.canvas.updateHistory()
@@ -262,6 +366,20 @@ class Window(ui_ankita.Ui_MainWindow):
                 self.painter.drawLine(self.points[0], pos)
                 self.painter.end()
                 self.canvas.setPixmap(pm)
+
+    """def drawcurve(self, pos, clicked):
+        if clicked:
+            self.points.append(pos)
+            if len(self.points) == 3: self.points.pop(0)
+        else:
+            if len(self.points)==2:
+                path = QPainterPath(self.points[0])
+                path.quadTo(self.points[1], pos)
+                pm = self.canvas.pixmap.copy()
+                self.beginPainter(pm)
+                self.painter.drawPath(path)
+                self.painter.end()
+                self.canvas.setPixmap(pm)"""
 
     def drawrect(self, pos, clicked=False):
         """ Draw Rectangle """
@@ -367,7 +485,13 @@ class Window(ui_ankita.Ui_MainWindow):
                 self.points = []
                 self.canvas.updateHistory()
         else:
-            if len(self.points)==2:
+            if len(self.points)==1:
+                pm = self.canvas.pixmap.copy()
+                self.beginPainter(pm)
+                self.painter.drawLine(self.points[0], pos)
+                self.painter.end()
+                self.canvas.setPixmap(pm)
+            elif len(self.points)==2:
                 x1 = self.points[0].x()
                 y1 = self.points[0].y()
                 x2 = self.points[1].x()
@@ -378,106 +502,229 @@ class Window(ui_ankita.Ui_MainWindow):
                 self.painter.drawArc(x-r,y-r, 2*r,2*r, start_ang*16,extent_ang*16)
                 self.painter.end()
                 self.canvas.setPixmap(pm)
+
     def floodfill(self, pos, clicked):
+        """ Floodfill using python-pil"""
         if not clicked: return
+        color = self.brush_color
+        if color.alpha() == 0: color = QColor(0,0,0)
         image = self.canvas.pixmap.toImage()
-        rgb = (self.brush_color.red(), self.brush_color.green(), self.brush_color.blue())
-        if image.pixel(pos) == self.brush_color.rgb(): return
-        #image.convertToFormat(5)
+        rgb = (color.red(), color.green(), color.blue())
+        if image.pixel(pos) == color.rgb(): return
+        # Convert QImage to PIL image
         bytes = image.bits().asstring(image.numBytes())
         pil_img = Image.fromstring("RGBA",(image.width(), image.height()), bytes)
         r, g, b, a = pil_img.split()
         pil_img = Image.merge("RGBA", (b, g, r, a))
+        # Floodfill and revert PIL Image to QImage
         ImageDraw.floodfill(pil_img, (pos.x(),pos.y()), rgb)
         image = ImageQt.ImageQt(pil_img)
         self.canvas.pixmap = QPixmap.fromImage(image)
         self.canvas.update()
         self.canvas.updateHistory()
-    def zoomIn(self):
-        if self.canvas.scale == 8: return
-        self.canvas.scale += 1
+
+    def drawText(self, pos, clicked):
+        """ Fixes text when clicked"""
+        if clicked:
+            text = self.textEdit.text()
+            font = self.fontComboBox.currentFont()
+            font.setPixelSize(self.fontSizeSlider.value())
+            fontmetrics = QFontMetrics(font)
+            w = fontmetrics.width(text)
+            h = fontmetrics.height()
+            self.painter.begin(self.canvas.pixmap)
+            self.painter.setPen(self.pen)
+            self.painter.setFont(font)
+            self.painter.drawText(pos.x(),pos.y(), w,h, Qt.AlignLeft|Qt.AlignVCenter, text)
+            self.painter.end()
+            self.canvas.update()
+            self.canvas.updateHistory()
+    def drawCursorText(self):
+        """ Draws cursor when text, font or size is changed """
+        text = self.textEdit.text()
+        font = self.fontComboBox.currentFont()
+        font.setPixelSize(self.fontSizeSlider.value())
+        fontmetrics = QFontMetrics(font)
+        w = fontmetrics.width(text)
+        h = fontmetrics.height()
+        if w == 0 : w = 1
+        pixmap = QPixmap(w*2, h*2)
+        pixmap.fill(QColor(0,0,0,0))
+        self.painter.begin(pixmap)
+        self.painter.setPen(self.pen)
+        self.painter.setFont(font)
+        self.painter.drawText(w,h, w,h, Qt.AlignLeft|Qt.AlignVCenter, text)
+        self.painter.end()
+        self.canvas.setCursor(QCursor(pixmap))
+    def updateFontSize(self, size):
+        self.labelFontSize.setText("Font Size : %i"%size)
+        self.drawCursorText()
+
+    def setZoom(self, factor):
+        self.canvas.scale = factor
         self.canvas.update()
-    def zoomOut(self):
-        if self.canvas.scale == 1: return
-        self.canvas.scale -= 1
-        self.canvas.update()
-        
+        self.labelZoom.setText("  Zoom :   %ix"%factor)
+        if self.brushBtn.isChecked():
+            self.canvas.setCursor(brush_cursor(self.brush_size*self.canvas.scale))
+    def setBrushSize(self, size):
+        self.brush_size = size
+        self.labelBrush.setText("Brush Size : %i"%size)
+        if self.brushBtn.isChecked():
+            self.pen.setWidth(self.brush_size)
+            self.canvas.setCursor(brush_cursor(self.brush_size*self.canvas.scale))
+    def setFillOpacity(self, alpha):
+        self.labelOpacity.setText("Fill Opacity : %i"%alpha)
+        if self.brush_color.alpha() != 0: # To avoid set alpha of null color
+            self.brush_color.setAlpha(alpha)
+            self.brush.setColor(self.brush_color)
+    def setLineWidth(self, width):
+        self.line_width = width
+        self.labelLineWidth.setText("Line Width : %i"%width)
+        if self.btnMode != "pencil":
+            self.pen.setWidth(width)
+
     def setColor(self, color):
         if self.linecolorBtn.isChecked():
             self.pen.setColor(color)
             self.labelLine.setStyleSheet("QLabel{background-color: %s;}"%color.name())
             if color.alpha() == 0:
-                self.labelLine.setText("Empty")
+                self.labelLine.setText("x")
             else:
                 self.labelLine.setText("")
         else:
             self.brush_color = color
-            self.brush.setColor(color)
             self.labelFill.setStyleSheet("QLabel{background-color: %s;}"%color.name())
             if color.alpha() == 0:
-                self.labelFill.setText("Empty")
+                self.labelFill.setText("x")
             else:
+                self.brush_color.setAlpha(self.opacitySlider.value())
                 self.labelFill.setText("")
+            self.brush.setColor(self.brush_color)
+    def toggleColorEdit(self, checked):
+        if checked:
+            self.palette.edit_colors = True
+        else:
+            self.palette.edit_colors = False
+
     def setStatus(self, pos):
-        self.statusbar.showMessage( "Pointer : %ix%i"%(pos.x(),pos.y()) )
+        self.status.setText( "Pointer : %i, %i"%(pos.x(),pos.y()) )
 
     def beginPainter(self, pixmap):
         self.painter.begin(pixmap)
         self.painter.setPen(self.pen)
         self.painter.setBrush(self.brush)
+
+################################  File Options  ##############################################
+    def newImage(self):
+        self.canvas.pixmap = QPixmap(800,600)
+        self.canvas.pixmap.fill()
+        self.canvas.update()
+        self.canvas.updateHistory()
+    def newWithSize(self):
+        dialog = NewImageDialog(self.canvas)
+        if dialog.exec_() == QDialog.Accepted:
+            width = dialog.widthEdit.text()
+            height = dialog.heightEdit.text()
+            try :
+                width = int(width)
+                height = int(height)
+            except : return
+            self.canvas.pixmap = QPixmap(width, height)
+            self.canvas.pixmap.fill()
+            self.canvas.update()
+            self.canvas.updateHistory()
+    def openImage(self):
+        filename = QFileDialog.getOpenFileName(self.canvas,
+                                      "Select Image to Open", "",
+                                      "Image Files (*.jpg *.png *.jpeg)" )
+        if not filename.isEmpty():
+            self.canvas.pixmap = QPixmap(filename)
+            self.canvas.update()
+            self.canvas.updateHistory()
+            self.filename = filename
+            self.canvas.window().setWindowTitle(filename)
     def saveImage(self):
+        if self.filename != "":
+            self.canvas.pixmap.save(self.filename)
+        else:
+            self.saveImageAs()
+    def saveImageAs(self):
         filename = QFileDialog.getSaveFileName(self.canvas,
-                                      "Select Image to Save", self.filename,
+                                      "Set FileName to Save", self.filename,
                                       "Image Files (*.jpg *.png *.jpeg)" )
         if not filename.isEmpty():
           if not (filename.endsWith(".jpg",0) or filename.endsWith(".png",0) or filename.endsWith(".jpeg",0)):
             filename += ".png"
           self.canvas.pixmap.save(filename)
           self.filename = filename
-    """def floodfill(self, pos, clicked):
-        # Fully working but discarded because very slow
-        # Concept source : wikipedia- floodfill #Alternative_implementations
-        if not clicked: return
-        image = self.canvas.pixmap.toImage()
-        img_width = self.canvas.pixmap.width()
-        img_height = self.canvas.pixmap.height()
-        target_color = image.pixel(pos)
-        replacing_color = qRgb(150,150,150)
-        if target_color == replacing_color: return
-        fill_list = []
-        fill_list.append(pos)
-        for point in fill_list:
-            line_points = []
-            w = e = point
-            while 1:
-                if w.x() == 0: break 
-                w = QPoint(w.x()-1, w.y())
-                if image.pixel(w) != target_color: break
-                line_points.append(w)
-            while 1:
-                if e.x() == img_width-1: break
-                e = QPoint(e.x()+1, e.y())
-                if image.pixel(e) != target_color: break
-                line_points.append(e)
-            for point in line_points:
-                image.setPixel(point, replacing_color)
-                if point.y() != 0:
-                    n = QPoint(point.x(), point.y()-1)
-                    if image.pixel(n) == target_color:
-                        fill_list.append(n)
-                if point.y() != img_height-1:
-                    s = QPoint(point.x(), point.y()+1)
-                    if image.pixel(s) == target_color:
-                        fill_list.append(s)
-        image.setPixel(pos, replacing_color)
-        self.canvas.pixmap = QPixmap.fromImage(image)
-        self.canvas.update()
-        self.canvas.updateHistory()"""
+          self.canvas.window().setWindowTitle(filename)
+
+###############################################################################################
+    def saveSettings(self):
+        self.settings.setValue("ColorPalette", clr_array)
+##############################################################################################
+class ColorPicker(QLabel):
+    colorSelected = pyqtSignal(QColor)
+    def __init__(self, parent):
+        super(ColorPicker, self).__init__(parent)
+        self.setFrameShadow(0x0020)
+        self.setFrameShape(0x0002)
+        self.setToolTip("Color Picker")
+        self.setSizePolicy(0, 0) #QSizePolicy.Fixed
+        self.setPixmap(QPixmap(":/color_picker.png"))
+        self.grab_mode = False
+    def mousePressEvent(self, ev):
+        if self.grab_mode:
+            x = self.mapToGlobal(ev.pos()).x()
+            y = self.mapToGlobal(ev.pos()).y()
+            image = QPixmap.grabWindow(QApplication.desktop().winId(),x,y,1,1).toImage()
+            color = QColor(image.pixel(0,0))
+            self.colorSelected.emit(color)
+    def mouseReleaseEvent(self, ev):
+        if self.grab_mode: 
+            self.grab_mode = False
+            self.releaseMouse()
+            self.unsetCursor()
+            return
+        self.grabMouse()
+        self.grab_mode = True
+        self.setCursor(QCursor(QPixmap(":/cursor_plus.png")))
+
+class NewImageDialog(QDialog):
+    def __init__(self, parent):
+        super(NewImageDialog, self).__init__(parent)
+        self.setWindowTitle("New Canvas")
+        self.resize(250, 120)
+
+        self.gridLayout = QGridLayout(self)
+        self.widthEdit = QLineEdit(self)
+        self.gridLayout.addWidget(self.widthEdit, 1, 0, 1, 1)
+        self.labelX = QLabel(self)
+        self.labelX.setText("x")
+        self.gridLayout.addWidget(self.labelX, 1, 1, 1, 1)
+        self.heightEdit = QLineEdit(self)
+        self.gridLayout.addWidget(self.heightEdit, 1, 2, 1, 1)
+        self.buttonBox = QDialogButtonBox(self)
+        self.buttonBox.setOrientation(Qt.Horizontal)
+        self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
+        self.gridLayout.addWidget(self.buttonBox, 2, 0, 1, 3)
+        self.label = QLabel(self)
+        self.label.setText("<b>New Image Size :</b>")
+        self.gridLayout.addWidget(self.label, 0, 0, 1, 3)
+
+        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.rejected.connect(self.reject)
+
 
 from math import sqrt, atan, degrees
 def calc_arc(x1,y1, x2,y2, x3,y3):
     """ Calculates position of center of a circle, and the radius when three points
         on the circle are given """
+    for each in [x1,y1, x2,y2, x3,y3]: # convert to float for accuracy
+        each = float(each)
+    if x1 == x2 : x2 += 0.000001
+    if x3 == x2 : x3 += 0.000001
+    if y1 == y2 : y2 += 0.000001
     try:
         mr = float(y2-y1)/(x2-x1)
         mt = float(y3-y2)/(x3-x2)
@@ -505,10 +752,13 @@ def calc_arc(x1,y1, x2,y2, x3,y3):
     return x, y, r, start_ang, extent_ang
 
 app = QApplication(sys.argv)
+app.setOrganizationName("Ankita")
+app.setApplicationName("ankita")
 win = QMainWindow()
 gui = Window()
 gui.setupUi(win)
+app.lastWindowClosed.connect(gui.saveSettings)
 
-win.resize(860, 600)
+win.resize(1200, 700)
 win.show()
 sys.exit(app.exec_())
