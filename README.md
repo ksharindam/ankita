@@ -1,7 +1,6 @@
 # Ankita
 A well designed paint program in PyQt4
 
-**Version** = 1.0  
 **Dependency** = python-qt4, python-pil 
 
 
