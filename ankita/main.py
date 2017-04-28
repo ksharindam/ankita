@@ -1,39 +1,4 @@
 #!/usr/bin/env python
-"""
-Name = Ankita
-version = 3.0
-Dependency = python-qt4, python-pil
-Description = A well designed Paint program in PyQt4
-Changes :
-  v3.0  Transformation tools (resize, rotate, flip)
-        Added brush texture
-        Remembers last canvas size
-        Added Rounded rect, Spray, circle
-        Added Spline
-        Added Eraser
-        Flood fill supports opacity replacement
-        Canvas background changed
-..................................................................................
-   Copyright (C) 2016 Arindam Chaudhuri <ksharindam@gmail.com>
-  
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
-  
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-  
-   You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-..................................................................................
-"""
-# TODO:
-#       Snap to grid
-#       Add Image
-#       Show resolution
 
 
 import sys
@@ -211,10 +176,10 @@ class PatternGrid(QLabel):
         pattern = QPixmap(pattern_array[index])
         self.patternSelected.emit(pattern)
 
-class Window(ui_ankita.Ui_MainWindow):
+class Window(QMainWindow, ui_ankita.Ui_MainWindow):
     """ This class creates main window and all child widgets """
     def __init__(self):
-        super(Window, self).__init__()
+        QMainWindow.__init__(self)
         self.filename = ""
         self.points = []
         self.btnMode = "pencil"
@@ -232,10 +197,8 @@ class Window(ui_ankita.Ui_MainWindow):
         self.brush = QBrush(self.brush_color)
         self.settings = QSettings()
         global clr_array
-        if self.settings.contains("ColorPalette"):
-            clr_array = list(self.settings.value("ColorPalette").toStringList())
-        else:
-            clr_array = default_clr_array[:]
+        clr_array = list(self.settings.value("ColorPalette", default_clr_array[:]).toStringList())
+        self.setupUi(self)
     def setupUi(self, win):
         super(Window, self).setupUi(win)
         # Change some widget property
@@ -247,11 +210,8 @@ class Window(ui_ankita.Ui_MainWindow):
         self.status = QLabel("Pointer : 0, 0", win)
         self.status.setFixedSize(140, 16)
         self.menubar.setCornerWidget(self.status)
-        if self.settings.contains("CanvasWidth") and self.settings.contains("CanvasHeight"):
-            canvaswidth = int(self.settings.value("CanvasWidth").toString())
-            canvasheight = int(self.settings.value("CanvasHeight").toString())
-        else:
-            canvaswidth, canvasheight = 800, 600
+        canvaswidth = int(self.settings.value("CanvasWidth", 800).toString())
+        canvasheight = int(self.settings.value("CanvasHeight", 600).toString())
         self.canvas = Label(canvaswidth, canvasheight, win)
         self.canvas.setStyleSheet("QLabel{background-color: #cccccc;}")
         #self.canvas.setStyleSheet("QLabel{background-image:url(:/pencil.png);}")
@@ -1042,10 +1002,15 @@ class Window(ui_ankita.Ui_MainWindow):
           self.canvas.window().setWindowTitle(filename)
 
 ###############################################################################################
-    def saveSettings(self):
+    def closeEvent(self, event):
         self.settings.setValue("ColorPalette", clr_array)
         self.settings.setValue("CanvasWidth", self.canvas.pixmap.width())
         self.settings.setValue("CanvasHeight", self.canvas.pixmap.height())
+        return QMainWindow.closeEvent(self, event)
+###############################################################################################
+
+
+
 ##############################################################################################
 class ColorPicker(QLabel):
     colorSelected = pyqtSignal(QColor)
@@ -1081,12 +1046,12 @@ class NewImageDialog(QDialog):
         self.resize(250, 120)
 
         self.gridLayout = QGridLayout(self)
-        self.widthEdit = QLineEdit(self)
+        self.widthEdit = QLineEdit("800", self)
         self.gridLayout.addWidget(self.widthEdit, 1, 0, 1, 1)
         self.labelX = QLabel(self)
         self.labelX.setText("x")
         self.gridLayout.addWidget(self.labelX, 1, 1, 1, 1)
-        self.heightEdit = QLineEdit(self)
+        self.heightEdit = QLineEdit("600", self)
         self.gridLayout.addWidget(self.heightEdit, 1, 2, 1, 1)
         self.buttonBox = QDialogButtonBox(self)
         self.buttonBox.setOrientation(Qt.Horizontal)
@@ -1202,15 +1167,14 @@ def calcspline(points, cp1, cp2):
     if len(cp2) > 3: cp2.pop(-3)
     return cp1, cp2
 
-app = QApplication(sys.argv)
-app.setOrganizationName("Ankita")
-app.setApplicationName("ankita")
-win = QMainWindow()
-gui = Window()
-gui.setupUi(win)
-app.lastWindowClosed.connect(gui.saveSettings)
+def main():
+    app = QApplication(sys.argv)
+    app.setOrganizationName("Ankita")
+    app.setApplicationName("ankita")
+    win = Window()
+    win.resize(1200, 700)
+    win.show()
+    sys.exit(app.exec_())
 
-
-win.resize(1200, 700)
-win.show()
-sys.exit(app.exec_())
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,29 @@
+<RCC>
+  <qresource>
+    <file>rectangle.png</file>
+    <file>roundedrect.png</file>
+    <file>arc.png</file>
+    <file>brush.png</file>
+    <file>eraser.png</file>
+    <file>spray.png</file>
+    <file>floodfill.png</file>
+    <file>line.png</file>
+    <file>curve.png</file>
+    <file>oval.png</file>
+    <file>circle.png</file>
+    <file>pencil.png</file>
+    <file>polygon.png</file>
+    <file>polyline.png</file>
+    <file>text.png</file>
+    <file>color_picker.png</file>
+    <file>undo.png</file>
+    <file>redo.png</file>
+    <file>brick.png</file>
+    <file>zigzag.png</file>
+    <file>dots.png</file>
+    <file>densedots.png</file>
+    <file>hlines.png</file>
+    <file>cursor_plus.png</file>
+    <file>cursor_pencil.png</file>
+  </qresource>
+</RCC>
