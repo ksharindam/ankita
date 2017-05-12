@@ -21,6 +21,7 @@ Install python-qt4 (for PyQt4 module) and python-pil(for Python Imaging Library)
       'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
       'Operating System :: POSIX :: Linux',
       'Programming Language :: Python :: 2.7',
+      'Topic :: Multimedia :: Graphics',
       ],
       entry_points={
           'console_scripts': ['ankita=ankita.main:main'],

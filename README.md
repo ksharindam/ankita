@@ -22,9 +22,12 @@ To uninstall run..
 
 ### Usage
 To run after installing, type command..  
-    `ankita`  
+  `ankita`  
+Or  
+  `ankita image.jpg`  
 If you want to run this program without/before installing, then  
 Open terminal and change directory to ankita-master and run  
-    `./run.py`  
-
+  `./run.sh`  
+Or  
+  `./run.sh image.jpg`  
 

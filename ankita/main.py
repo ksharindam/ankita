@@ -1,7 +1,7 @@
 #!/usr/bin/env python
+__version__ = '3.2'
 
-
-import sys
+import sys, os
 import ui_ankita
 from PIL import Image, ImageDraw, ImageQt
 from random import randint
@@ -271,6 +271,7 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
         self.redoBtn.clicked.connect(self.canvas.redo)
         # This will be after connecting signal of that button
         self.pencilBtn.setChecked(True)
+        self.setWindowTitle("Ankita - " + __version__)
     def onBtnClick(self, button):
         """ Initializes all on brush button change"""
         if self.btnMode == "polygon":
@@ -959,7 +960,7 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
         self.canvas.update()
         self.canvas.updateHistory()
         self.filename = ""
-        self.canvas.window().setWindowTitle("Ankita")
+        self.setWindowTitle("Ankita - " + __version__)
     def newWithSize(self):
         dialog = NewImageDialog(self.centralwidget.window())
         if dialog.exec_() == QDialog.Accepted:
@@ -974,17 +975,22 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
             self.canvas.update()
             self.canvas.updateHistory()
             self.filename = ""
-            self.canvas.window().setWindowTitle("Ankita")
+            self.setWindowTitle("Ankita - " + __version__)
+
     def openImage(self):
         filename = QFileDialog.getOpenFileName(self.centralwidget.window(),
                                       "Select Image to Open", "",
                                       "Image Files (*.jpg *.png *.jpeg)" )
         if not filename.isEmpty():
-            self.canvas.pixmap = QPixmap(filename)
-            self.canvas.update()
-            self.canvas.updateHistory()
-            self.filename = filename
-            self.canvas.window().setWindowTitle(filename)
+            self.loadImage(filename)
+
+    def loadImage(self, filename):
+        self.canvas.pixmap = QPixmap(filename)
+        self.canvas.update()
+        self.canvas.updateHistory()
+        self.filename = filename
+        self.setWindowTitle(filename)
+
     def saveImage(self):
         if self.filename != "":
             self.canvas.pixmap.save(self.filename)
@@ -999,7 +1005,7 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
             filename += ".png"
           self.canvas.pixmap.save(filename)
           self.filename = filename
-          self.canvas.window().setWindowTitle(filename)
+          self.setWindowTitle(filename)
 
 ###############################################################################################
     def closeEvent(self, event):
@@ -1173,6 +1179,8 @@ def main():
     app.setApplicationName("ankita")
     win = Window()
     win.resize(1200, 700)
+    if len(sys.argv)>1 and os.path.exists( os.path.abspath(sys.argv[-1]) ):
+        win.loadImage(os.path.abspath(sys.argv[-1]))
     win.show()
     sys.exit(app.exec_())
 
