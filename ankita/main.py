@@ -904,11 +904,11 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
                 try : height = int(h)
                 except : return
             if not w.isEmpty() and not h.isEmpty():
-                self.canvas.pixmap = self.canvas.pixmap.scaled(width, height)
+                self.canvas.pixmap = self.canvas.pixmap.scaled(width, height, 0, 1)
             elif not w.isEmpty():
-                self.canvas.pixmap = self.canvas.pixmap.scaledToWidth(width)
+                self.canvas.pixmap = self.canvas.pixmap.scaledToWidth(width, 1)
             elif not h.isEmpty():
-                self.canvas.pixmap = self.canvas.pixmap.scaledToHeight(height)
+                self.canvas.pixmap = self.canvas.pixmap.scaledToHeight(height, 1)
             else: return
             self.canvas.update()
             self.canvas.updateHistory()

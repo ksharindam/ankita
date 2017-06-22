@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
 from setuptools import setup
+from ankita import __version__
 
 setup(
       name='ankita',
-      version='3.1',
+      version=__version__,
       description='Well designed MS-Paint like paint program written in PyQt4',
       long_description='''To run it you need PyQt4 module and PIL module.  
 Install python-qt4 (for PyQt4 module) and python-pil(for Python Imaging Library) in debian based distros''',
