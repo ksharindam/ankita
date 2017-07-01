@@ -15,7 +15,6 @@ Install python-qt4 (for PyQt4 module) and python-pil(for Python Imaging Library)
       author_email='ksharindam@gmail.com',
       license='GNU GPLv3',
       packages=['ankita'],
-#      install_requires=['PyQt4',      ],
       classifiers=[
       'Development Status :: 5 - Production/Stable',
       'Environment :: X11 Applications :: Qt',
@@ -27,5 +26,9 @@ Install python-qt4 (for PyQt4 module) and python-pil(for Python Imaging Library)
       entry_points={
           'console_scripts': ['ankita=ankita.main:main'],
       },
-#      include_package_data=True,
+      data_files=[
+                 ('share/applications', ['files/ankita.desktop']),
+                 ('share/icons', ['files/ankita.png'])
+      ],
+      include_package_data=True,
       zip_safe=False)

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Ankita Paint
+Comment=Well designed Paint program
+Exec=ankita %f
+Icon=ankita
+Categories= Graphics;
+Terminal=false
+StartupNotify=false
