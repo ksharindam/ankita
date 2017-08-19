@@ -7,10 +7,7 @@ Python Module Name = ankita
 Debian Dependency = python-qt4, python-pil
 Description = A well designed PyQt4 Paint program
 Changes :
-        Smooth Transformation in image resizing.
-        Can load image from relative path
-        Open any image by running `ankita filepath` from terminal.
-        Default resolution is 800x600 in new canvas dialog.
+        fixed : floodfill bug by changing fromstring() to frombytes()
 
 ...........................................................................
 |   Copyright (C) 2016-2017 Arindam Chaudhuri <ksharindam@gmail.com>       |
@@ -34,4 +31,4 @@ Changes :
 #       Add Image
 #       Show resolution
 
-__version__ = '3.2.3'
+__version__ = '3.2.4'

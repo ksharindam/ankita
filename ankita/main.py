@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-__version__ = '3.2'
+from __init__ import __version__
 
 import sys, os
 import ui_ankita
@@ -744,7 +744,7 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
         rgba = (color.red(), color.green(), color.blue(), color.alpha())
         # Convert QImage to PIL image
         bytes = image.bits().asstring(image.numBytes())
-        pil_img = Image.fromstring("RGBA",(image.width(), image.height()), bytes, "raw", "BGRA")
+        pil_img = Image.frombytes("RGBA",(image.width(), image.height()), bytes, "raw", "BGRA")
         # Floodfill and revert PIL Image to QImage
         ImageDraw.floodfill(pil_img, (pos.x(),pos.y()), rgba)
         image = ImageQt.ImageQt(pil_img)
