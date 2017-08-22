@@ -955,7 +955,9 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
         self.canvas.updateHistory()
 ################################  File Options  ##############################################
     def newImage(self):
-        self.canvas.pixmap = QPixmap(self.canvas.pixmap.width(),self.canvas.pixmap.height())
+        canvaswidth = int(self.settings.value("CanvasWidth", 800).toString())
+        canvasheight = int(self.settings.value("CanvasHeight", 600).toString())
+        self.canvas.pixmap = QPixmap(canvaswidth, canvasheight)
         self.canvas.pixmap.fill()
         self.canvas.update()
         self.canvas.updateHistory()
@@ -976,11 +978,13 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
             self.canvas.updateHistory()
             self.filename = ""
             self.setWindowTitle("Ankita - " + __version__)
+            self.settings.setValue("CanvasWidth", self.canvas.pixmap.width())
+            self.settings.setValue("CanvasHeight", self.canvas.pixmap.height())
 
     def openImage(self):
         filename = QFileDialog.getOpenFileName(self.centralwidget.window(),
                                       "Select Image to Open", "",
-                                      "Image Files (*.jpg *.png *.jpeg)" )
+                                      "All Files (*);;All Images (*.jpg *.png *.jpeg *.xpm *.gif *.svg);;PNG Image (*.png);;JPEG Image (*.jpg *.jpeg);;SVG Image (*.svg)" )
         if not filename.isEmpty():
             self.loadImage(filename)
 
@@ -999,7 +1003,7 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
     def saveImageAs(self):
         filename = QFileDialog.getSaveFileName(self.centralwidget.window(),
                                       "Set FileName to Save", self.filename,
-                                      "Image Files (*.jpg *.png *.jpeg)" )
+                                      "All Images (*.jpg *.png *.jpeg);;PNG Image (*.png);;JPEG Image (*.jpg)" )
         if not filename.isEmpty():
           if not (filename.endsWith(".jpg",0) or filename.endsWith(".png",0) or filename.endsWith(".jpeg",0)):
             filename += ".png"
@@ -1010,8 +1014,6 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
 ###############################################################################################
     def closeEvent(self, event):
         self.settings.setValue("ColorPalette", clr_array)
-        self.settings.setValue("CanvasWidth", self.canvas.pixmap.width())
-        self.settings.setValue("CanvasHeight", self.canvas.pixmap.height())
         return QMainWindow.closeEvent(self, event)
 ###############################################################################################
 

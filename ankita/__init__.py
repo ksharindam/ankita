@@ -7,7 +7,8 @@ Python Module Name = ankita
 Debian Dependency = python-qt4, python-pil
 Description = A well designed PyQt4 Paint program
 Changes :
-        fixed : floodfill bug by changing fromstring() to frombytes()
+        added : more filters in open image
+        fixed : new image size was equals to previous image
 
 ...........................................................................
 |   Copyright (C) 2016-2017 Arindam Chaudhuri <ksharindam@gmail.com>       |
@@ -31,4 +32,4 @@ Changes :
 #       Add Image
 #       Show resolution
 
-__version__ = '3.2.4'
+__version__ = '3.2.5'
