@@ -3,7 +3,11 @@ from __init__ import __version__
 
 import sys, os
 import ui_ankita
-from PIL import Image, ImageDraw, ImageQt
+try:
+    from PIL import Image, ImageDraw, ImageQt
+    PIL_available = True
+except:
+    PIL_available = False
 from random import randint
 
 from PyQt4.QtCore import pyqtSignal, QPoint, Qt, QSettings
@@ -741,13 +745,17 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
         if color == QColor(0,0,0,0): color.setAlpha(255)
         image = self.canvas.pixmap.toImage()
         if image.pixel(pos) == color.rgba(): return
-        rgba = (color.red(), color.green(), color.blue(), color.alpha())
-        # Convert QImage to PIL image
-        bytes = image.bits().asstring(image.numBytes())
-        pil_img = Image.frombytes("RGBA",(image.width(), image.height()), bytes, "raw", "BGRA")
-        # Floodfill and revert PIL Image to QImage
-        ImageDraw.floodfill(pil_img, (pos.x(),pos.y()), rgba)
-        image = ImageQt.ImageQt(pil_img)
+        if PIL_available:
+            # Floodfill using python-pil library
+            rgba = (color.red(), color.green(), color.blue(), color.alpha())
+            # Convert QImage to PIL image
+            bytes = image.bits().asstring(image.numBytes())
+            pil_img = Image.frombytes("RGBA",(image.width(), image.height()), bytes, "raw", "BGRA")
+            # Floodfill and revert PIL Image to QImage
+            ImageDraw.floodfill(pil_img, (pos.x(),pos.y()), rgba)
+            image = ImageQt.ImageQt(pil_img)
+        else:
+            floodfill(image, pos, color.rgba())   # Use native function for floodfill
         self.canvas.pixmap = QPixmap.fromImage(image)
         self.canvas.update()
         self.canvas.updateHistory()
@@ -1174,6 +1182,39 @@ def calcspline(points, cp1, cp2):
             cp2.append(QPoint(cp2_x, cp2_y)) # cp2[i]
     if len(cp2) > 3: cp2.pop(-3)
     return cp1, cp2
+
+def floodfill(img, point, newColor):
+    """ Stack Based Scanline Floodfill Algorithm
+    Source : http://lodev.org/cgtutor/floodfill.html#Scanline_Floodfill_Algorithm_With_Stack"""
+    w = img.width();
+    h = img.height();
+    q = [];
+    oldColor = img.pixel(point);
+
+    q.append(point);
+
+    while (len(q)!=0):
+        pt = q.pop();
+        x = pt.x();
+        y = pt.y();
+        while (x >= 0 and img.pixel(x,y) == oldColor):
+            x-=1;
+        x+=1;
+        spanAbove = spanBelow = 0;
+        while (x < w and img.pixel(x,y) == oldColor ):
+            img.setPixel(x,y, newColor);
+            if (not spanAbove and y > 0 and img.pixel(x,y-1) == oldColor):
+                q.append(QPoint(x, y - 1));
+                spanAbove = 1;
+            elif (spanAbove and y > 0 and img.pixel(x,y-1) != oldColor):
+                spanAbove = 0;
+
+            if(not spanBelow and y < h - 1 and img.pixel(x,y+1) == oldColor):
+                q.append(QPoint(x, y + 1));
+                spanBelow = 1;
+            elif(spanBelow and y < h - 1 and img.pixel(x,y+1) != oldColor):
+                spanBelow = 0;
+            x+=1;
 
 def main():
     app = QApplication(sys.argv)

@@ -9,8 +9,9 @@ Description = A well designed PyQt4 Paint program
 Changes :
         added : more filters in open image
         fixed : new image size was equals to previous image
+        added : internal floodfill function (uses when pil unavailable)
 
-...........................................................................
+............................................................................
 |   Copyright (C) 2016-2017 Arindam Chaudhuri <ksharindam@gmail.com>       |
 |                                                                          |
 |   This program is free software: you can redistribute it and/or modify   |
@@ -25,11 +26,11 @@ Changes :
 |                                                                          |
 |   You should have received a copy of the GNU General Public License      |
 |   along with this program.  If not, see <http://www.gnu.org/licenses/>.  |
-...........................................................................
+............................................................................
 """
 # TODO:
 #       Snap to grid
 #       Add Image
 #       Show resolution
 
-__version__ = '3.2.5'
+__version__ = '3.2.6'
