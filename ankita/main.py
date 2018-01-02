@@ -3,12 +3,12 @@ from __init__ import __version__
 
 import sys, os
 import ui_ankita
+from random import randint
 try:
     from PIL import Image, ImageDraw, ImageQt
     PIL_available = True
 except:
     PIL_available = False
-from random import randint
 
 from PyQt4.QtCore import pyqtSignal, QPoint, Qt, QSettings
 from PyQt4.QtGui import QApplication, QMainWindow, QLabel, QHBoxLayout, QGridLayout, QPixmap
@@ -1186,35 +1186,35 @@ def calcspline(points, cp1, cp2):
 def floodfill(img, point, newColor):
     """ Stack Based Scanline Floodfill Algorithm
     Source : http://lodev.org/cgtutor/floodfill.html#Scanline_Floodfill_Algorithm_With_Stack"""
-    w = img.width();
-    h = img.height();
-    q = [];
-    oldColor = img.pixel(point);
+    w = img.width()
+    h = img.height()
+    q = []
+    oldColor = img.pixel(point)
 
-    q.append(point);
+    q.append(point)
 
     while (len(q)!=0):
-        pt = q.pop();
-        x = pt.x();
-        y = pt.y();
+        pt = q.pop()
+        x = pt.x()
+        y = pt.y()
         while (x >= 0 and img.pixel(x,y) == oldColor):
-            x-=1;
-        x+=1;
-        spanAbove = spanBelow = 0;
+            x-=1
+        x+=1
+        spanAbove = spanBelow = 0
         while (x < w and img.pixel(x,y) == oldColor ):
-            img.setPixel(x,y, newColor);
+            img.setPixel(x,y, newColor)
             if (not spanAbove and y > 0 and img.pixel(x,y-1) == oldColor):
-                q.append(QPoint(x, y - 1));
-                spanAbove = 1;
+                q.append(QPoint(x, y - 1))
+                spanAbove = 1
             elif (spanAbove and y > 0 and img.pixel(x,y-1) != oldColor):
-                spanAbove = 0;
+                spanAbove = 0
 
             if(not spanBelow and y < h - 1 and img.pixel(x,y+1) == oldColor):
-                q.append(QPoint(x, y + 1));
-                spanBelow = 1;
+                q.append(QPoint(x, y + 1))
+                spanBelow = 1
             elif(spanBelow and y < h - 1 and img.pixel(x,y+1) != oldColor):
-                spanBelow = 0;
-            x+=1;
+                spanBelow = 0
+            x+=1
 
 def main():
     app = QApplication(sys.argv)
