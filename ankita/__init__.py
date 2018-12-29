@@ -10,6 +10,7 @@ Changes :
         added : more filters in open image
         fixed : new image size was equals to previous image
         added : internal floodfill function (uses when pil unavailable)
+        added : c++ lib to run floodfill, and removed dependency on PIL
 
 ............................................................................
 |   Copyright (C) 2016-2017 Arindam Chaudhuri <ksharindam@gmail.com>       |
@@ -33,4 +34,4 @@ Changes :
 #       Add Image
 #       Show resolution
 
-__version__ = '3.2.6'
+__version__ = '3.3.0'
