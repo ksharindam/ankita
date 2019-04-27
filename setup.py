@@ -45,7 +45,7 @@ setup(
              ('share/applications', ['files/ankita.desktop']),
              ('share/icons', ['files/ankita.png'])
     ],
-    cmdclass = {'build' : Build},
+    cmdclass = {'compile' : Build},     # using {'build' : Build} gives error
     include_package_data=True,
     zip_safe=False,
     )

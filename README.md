@@ -12,7 +12,7 @@ ease of use, it is single window program (unlike xpaint).
 ### Build
 If can build the c++ extension lib for fast floodfill if you have a slow computer.  
 Download libqt4-dev and then build by running this command...  
-    `python setup.py build`
+    `python setup.py compile`
 
 ### Installation
 To Install this program open terminal inside ankita-master directory.  
