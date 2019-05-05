@@ -1,59 +1,61 @@
-#include <QImage>
 #include <vector>
+
+typedef unsigned char uchar;
+typedef unsigned int QRgb;
+
+class Point
+{
+public:
+    int x,y;
+    Point():x(0),y(0) {};
+    Point(int x, int y): x(x), y(y) {};
+};
 
 extern "C"
 {
-    void floodfill(uchar * c, int width, int height, int bpl, int x, int y, int rgba);
-}
-void floodFill(QImage &img, int x, int y, QRgb newColor);
-
-
-void floodfill(uchar * c, int width, int height, int bpl, int x, int y, int rgba)
-{
-    QImage image(c, width, height, bpl, QImage::Format_ARGB32);
-    floodFill(image, x, y, QRgb(rgba));
+    void floodfill(uchar *data, int width, int height, int bpl, int x, int y, int rgba);
 }
 
 
-void
-floodFill(QImage &img, int x, int y, QRgb newColor)
+#define row(x) ((QRgb*)(data+(x)*bpl))
+
+void floodfill(uchar *data, int w, int h, int bpl, int x, int y, int rgba)
 {
-    QRgb oldColor = img.pixel(x,y);
-    if (oldColor == newColor) return;
-    int w = img.width();
-    int h = img.height();
-    std::vector<QPoint> q;
+    QRgb newColor = QRgb(rgba);
+    QRgb oldColor = row(y)[x];//(data+i*bpl)[j];
+    if  (oldColor == newColor) return;
+    std::vector<Point> q;
     bool spanAbove, spanBelow;
 
-    q.push_back(QPoint(x, y));
+    q.push_back(Point(x, y));
 
     while(!q.empty())
     {
-        QPoint pt = q.back();
+        Point pt = q.back();
         q.pop_back();
-        x = pt.x();
-        y = pt.y();
-        while (x >= 0 && img.pixel(x,y) == oldColor) x--;
+        x = pt.x;
+        y = pt.y;
+        while (x >= 0 && row(y)[x] == oldColor) x--;
         x++;
         spanAbove = spanBelow = 0;
-        while (x < w && img.pixel(x,y) == oldColor )
+        while (x < w && row(y)[x] == oldColor )
         {
-            img.setPixel(x,y, newColor);
-            if(!spanAbove && y > 0 && img.pixel(x,y-1) == oldColor)
+            row(y)[x] = newColor;
+            if(!spanAbove && y > 0 && row(y-1)[x] == oldColor)
             {
-                q.push_back(QPoint(x, y - 1));
+                q.push_back(Point(x, y-1));
                 spanAbove = 1;
             }
-            else if (spanAbove && y > 0 && img.pixel(x,y-1) != oldColor)
+            else if (spanAbove && y > 0 && row(y-1)[x] != oldColor)
             {
                 spanAbove = 0;
             }
-            if(!spanBelow && y < h - 1 && img.pixel(x,y+1) == oldColor)
+            if(!spanBelow && y < h-1 && row(y+1)[x] == oldColor)
             {
-                q.push_back(QPoint(x, y + 1));
+                q.push_back(Point(x, y+1));
                 spanBelow = 1;
             }
-            else if(spanBelow && y < h - 1 && img.pixel(x,y+1) != oldColor)
+            else if(spanBelow && y < h-1 && row(y+1)[x] != oldColor)
             {
                 spanBelow = 0;
             }
