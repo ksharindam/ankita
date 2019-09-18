@@ -2,7 +2,7 @@
 A well designed MS-Paint like paint program written in PyQt4
 
 **Dependency**  
-* python-qt4  
+* python3-pyqt4  
 
 ### Description
 This paint program is aimed at ease of use, with many useful features.  
@@ -12,15 +12,15 @@ ease of use, it is single window program (unlike xpaint).
 ### Build
 If can build the c++ extension lib for fast floodfill if you have a slow computer.  
 Build by running this command...  
-    `python setup.py compile`
+    `python3 setup.py compile`
 
 ### Installation
 To Install this program open terminal inside ankita-master directory.  
 And then run following command..  
-    `sudo pip install .`  
+    `sudo pip3 install .`  
 
 To uninstall run..  
-    `sudo pip uninstall ankita`
+    `sudo pip3 uninstall ankita`
 
 
 ### Usage

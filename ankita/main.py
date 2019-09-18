@@ -1,11 +1,7 @@
-#!/usr/bin/env python
-from __init__ import __version__
-
+#!/usr/bin/env python3
 import sys, os
 from random import randint
 from ctypes import *
-
-import ui_ankita
 
 from PyQt4.QtCore import pyqtSignal, QPoint, Qt, QSettings
 from PyQt4.QtGui import (QApplication, QMainWindow, QLabel, QHBoxLayout, QGridLayout, QPixmap, QImage,
@@ -13,6 +9,11 @@ from PyQt4.QtGui import (QApplication, QMainWindow, QLabel, QHBoxLayout, QGridLa
     QFontComboBox, QSlider, QLineEdit, QTransform,
     QDialog, QDialogButtonBox, QFileDialog, QColorDialog, QButtonGroup,
 )
+
+sys.path.append(os.path.dirname(__file__))
+import ui_ankita
+from __init__ import __version__
+
 try:
     lib = CDLL(os.path.dirname(__file__) +"/floodfill.so")
     def fast_floodfill(image, pos, rgba):
@@ -29,7 +30,7 @@ default_clr_array = [
 "#c0ffc0", "#80ff80", "#00ff00", "#00ee00", "#00cd00", "#008b00",
 "#ff6a6a", "#ff3030", "#ff0000", "#ee0000", "#cd0000", "#8b0000",
 "#ffff00", "#ffa500", "#00ffff", "#008b8b", "#ff00ff", "#8b008b",
-"#ffffff", "#ffffff", "#ffffff", "#ffffff", "#ffffff", "#ffffff", 
+"#ffffff", "#ffffff", "#ffffff", "#ffffff", "#ffffff", "#ffffff",
 "#ffffff", "#ffffff", "#ffffff", "#ffffff", "#ffffff", "#ffffff"
 ]
 
@@ -222,7 +223,7 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
         self.brush = QBrush(self.brush_color)
         self.settings = QSettings()
         global clr_array
-        clr_array = list(self.settings.value("ColorPalette", default_clr_array[:]).toStringList())
+        clr_array = self.settings.value("ColorPalette", default_clr_array[:])
         self.setupUi(self)
 
     def setupUi(self, win):
@@ -236,8 +237,8 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
         self.status = QLabel("Pointer : 0, 0", win)
         self.status.setFixedSize(140, 16)
         self.menubar.setCornerWidget(self.status)
-        canvaswidth = int(self.settings.value("CanvasWidth", 800).toString())
-        canvasheight = int(self.settings.value("CanvasHeight", 600).toString())
+        canvaswidth = int(self.settings.value("CanvasWidth", 800))
+        canvasheight = int(self.settings.value("CanvasHeight", 600))
         self.canvas = Label(canvaswidth, canvasheight, win)
         self.canvas.setStyleSheet("QLabel{background-color: #cccccc;}")
         #self.canvas.setStyleSheet("QLabel{background-image:url(:/pencil.png);}")
@@ -629,7 +630,7 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
             self.btnMode = "polyline"
             if len(self.points) > 1:
                 self.beginPainter(self.canvas.pixmap)
-                apply(self.painter.drawPolyline, self.points)
+                self.painter.drawPolyline(*self.points)
                 self.painter.end()
                 self.canvas.update()
         else:
@@ -638,7 +639,7 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
                 self.beginPainter(pm)
                 points = self.points[:]
                 points.append(pos)
-                apply(self.painter.drawPolyline, points)
+                self.painter.drawPolyline(*points)
                 self.painter.end()
                 self.canvas.setPixmap(pm)
 
@@ -647,7 +648,7 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
         if finaldraw:
             if len(self.points)>1:
                 self.beginPainter(self.canvas.pixmap)
-                apply(self.painter.drawPolygon, self.points)
+                self.painter.drawPolygon(*self.points)
                 self.painter.end()
                 return
         if clicked:
@@ -659,10 +660,10 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
                 self.beginPainter(pm)
                 points = self.points[:]
                 points.append(pos)
-                apply(self.painter.drawPolygon, points)
+                self.painter.drawPolygon(*points)
                 self.painter.end()
                 self.canvas.setPixmap(pm)
-                
+
     def drawoval(self, pos, clicked=False):
         """ Draw Oval """
         if clicked:
@@ -747,16 +748,16 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
 
     def spray(self, pos, clicked):
         if not self.canvas.mouse_pressed: return
-        if clicked : 
+        if clicked :
             self.beginPainter(self.canvas.pixmap)
         size = self.spray_size/2
         points = []
-        for i in range(size*self.spray_density):
+        for i in range(int(size*self.spray_density)):
           x = randint(-size, +size)
           y = randint(-size, +size)
           if x*x + y*y < size*size: # for circular area spray
             points.append(QPoint(x+pos.x(), y+pos.y()))
-        apply(self.painter.drawPoints, points)
+        self.painter.drawPoints(*points)
         self.canvas.update()
 
     def setSpraySize(self, value):
@@ -936,19 +937,18 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
         if dialog.exec_() == QDialog.Accepted:
             w = dialog.widthEdit.text()
             h = dialog.heightEdit.text()
-            if not w.isEmpty():
-                try : width = int(w)
-                except : return
-            if not h.isEmpty():
-                try : height = int(h)
-                except : return
-            if not w.isEmpty() and not h.isEmpty():
-                self.canvas.pixmap = self.canvas.pixmap.scaled(width, height, 0, 1)
-            elif not w.isEmpty():
-                self.canvas.pixmap = self.canvas.pixmap.scaledToWidth(width, 1)
-            elif not h.isEmpty():
-                self.canvas.pixmap = self.canvas.pixmap.scaledToHeight(height, 1)
-            else: return
+            try : w = int(w)
+            except : w = 0
+            try : h = int(h)
+            except : h = 0
+            if w!=0 and h!=0:
+                self.canvas.pixmap = self.canvas.pixmap.scaled(w, h, 0, 1)
+            elif w!=0:
+                self.canvas.pixmap = self.canvas.pixmap.scaledToWidth(w, 1)
+            elif h!=0:
+                self.canvas.pixmap = self.canvas.pixmap.scaledToHeight(h, 1)
+            else:
+                return
             self.canvas.update()
             self.canvas.updateHistory()
 
@@ -999,8 +999,8 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
         self.canvas.updateHistory()
 ################################  File Options  ##############################################
     def newImage(self):
-        canvaswidth = int(self.settings.value("CanvasWidth", 800).toString())
-        canvasheight = int(self.settings.value("CanvasHeight", 600).toString())
+        canvaswidth = int(self.settings.value("CanvasWidth", 800))
+        canvasheight = int(self.settings.value("CanvasHeight", 600))
         self.canvas.pixmap = QPixmap(canvaswidth, canvasheight)
         self.canvas.pixmap.fill()
         self.canvas.update()
@@ -1030,7 +1030,7 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
         filename = QFileDialog.getOpenFileName(self.centralwidget.window(),
                                       "Select Image to Open", "",
                                       "All Files (*);;All Images (*.jpg *.png *.jpeg *.xpm *.gif *.svg);;PNG Image (*.png);;JPEG Image (*.jpg *.jpeg);;SVG Image (*.svg)" )
-        if not filename.isEmpty():
+        if filename != '':
             self.loadImage(filename)
 
     def loadImage(self, filename):
@@ -1050,12 +1050,12 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
         filename = QFileDialog.getSaveFileName(self.centralwidget.window(),
                                       "Set FileName to Save", self.filename,
                                       "All Images (*.jpg *.png *.jpeg);;PNG Image (*.png);;JPEG Image (*.jpg)" )
-        if not filename.isEmpty():
-          if not (filename.endsWith(".jpg",0) or filename.endsWith(".png",0) or filename.endsWith(".jpeg",0)):
+        if filename == '': return
+        if not (filename.endswith(".jpg",0) or filename.endswith(".png",0) or filename.endswith(".jpeg",0)):
             filename += ".png"
-          self.canvas.pixmap.save(filename)
-          self.filename = filename
-          self.setWindowTitle(filename)
+        self.canvas.pixmap.save(filename)
+        self.filename = filename
+        self.setWindowTitle(filename)
 
 ###############################################################################################
     def closeEvent(self, event):
@@ -1086,7 +1086,7 @@ class ColorPicker(QLabel):
             self.colorSelected.emit(color)
 
     def mouseReleaseEvent(self, ev):
-        if self.grab_mode: 
+        if self.grab_mode:
             self.grab_mode = False
             self.releaseMouse()
             self.unsetCursor()
@@ -1164,11 +1164,11 @@ def calc_arc(x1,y1, x2,y2, x3,y3):
         mr = float(y2-y1)/(x2-x1)
         mt = float(y3-y2)/(x3-x2)
         # coordinate of center is (x,y)
-        x = (mr*mt*(y3-y1)+mr*(x2+x3)-mt*(x1+x2))/(2*(mr-mt)) 
+        x = (mr*mt*(y3-y1)+mr*(x2+x3)-mt*(x1+x2))/(2*(mr-mt))
         y = -(1/mr)*(x-(x1+x2)/2)+(y1+y2)/2
         r = int(round(sqrt((x1-x)**2 + (y1-y)**2), 0))   # Radius of circle
         # Angle between x-axis and line connecting center and (x1,y1)
-        ang1 = degrees(atan((y-y1)/(x1-x))) 
+        ang1 = degrees(atan((y-y1)/(x1-x)))
         if x > x1: ang1 += 180
         ang2 = degrees(atan((y-y2)/(x2-x)))
         if x > x2: ang2 += 180
@@ -1205,7 +1205,7 @@ def calcspline(points, cp1, cp2):
             t = sqrt(cx*cx + cy*cy + 1E-9)
             cx = cx/t
             cy = cy/t
-            cp1_x = points[i].x() + (r*cx) 
+            cp1_x = points[i].x() + (r*cx)
             cp1_y = points[i].y() + (r*cy)
             cp2_x = points[i].x() - (s*cx)
             cp2_y = points[i].y() - (s*cy)

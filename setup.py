@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 import os
 from setuptools import setup
 from distutils.cmd import Command
@@ -35,7 +34,7 @@ setup(
     'Environment :: X11 Applications :: Qt',
     'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
     'Operating System :: POSIX :: Linux',
-    'Programming Language :: Python :: 2.7',
+    'Programming Language :: Python :: 3.7',
     'Topic :: Multimedia :: Graphics',
     ],
     entry_points={

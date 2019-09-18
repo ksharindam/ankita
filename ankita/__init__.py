@@ -1,19 +1,15 @@
-#!/usr/bin/env python
 """
 Name = Ankita
 Executable Command = ankita
 Package Name = ankita
 Python Module Name = ankita
-Debian Dependency = python-qt4, python-pil
-Description = A well designed PyQt4 Paint program
+Debian Dependency = python3-pyqt4
+Description = Well designed PyQt4 Paint program
 Changes :
-        added : more filters in open image
-        fixed : new image size was equals to previous image
-        added : internal floodfill function (uses when pil unavailable)
-        added : c++ lib to run floodfill, and removed dependency on PIL
+v4.0.0  ported to python3
 
 ............................................................................
-|   Copyright (C) 2016-2017 Arindam Chaudhuri <ksharindam@gmail.com>       |
+|   Copyright (C) 2016-2019 Arindam Chaudhuri <ksharindam@gmail.com>       |
 |                                                                          |
 |   This program is free software: you can redistribute it and/or modify   |
 |   it under the terms of the GNU General Public License as published by   |
@@ -31,7 +27,6 @@ Changes :
 """
 # TODO:
 #       Snap to grid
-#       Add Image
 #       Show resolution
 
-__version__ = '3.3.0'
+__version__ = '4.0.0'

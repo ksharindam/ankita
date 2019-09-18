@@ -13,6 +13,9 @@ public:
 
 extern "C"
 {
+    // bpl -> bytes per scanline
+    // rgba -> 32 bit color
+    // x may be from 0 to width-1
     void floodfill(uchar *data, int width, int height, int bpl, int x, int y, int rgba);
 }
 
@@ -22,7 +25,7 @@ extern "C"
 void floodfill(uchar *data, int w, int h, int bpl, int x, int y, int rgba)
 {
     QRgb newColor = QRgb(rgba);
-    QRgb oldColor = row(y)[x];//(data+i*bpl)[j];
+    QRgb oldColor = row(y)[x];
     if  (oldColor == newColor) return;
     std::vector<Point> q;
     bool spanAbove, spanBelow;
