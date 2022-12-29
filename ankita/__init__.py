@@ -5,11 +5,9 @@ Package Name = ankita
 Python Module Name = ankita
 Debian Dependency = python3-pyqt5
 Description = Well designed PyQt5 Paint program
-Changes :
-v4.0.0  ported to python3
 
 ............................................................................
-|   Copyright (C) 2016-2021 Arindam Chaudhuri <ksharindam@gmail.com>       |
+|   Copyright (C) 2016-2022 Arindam Chaudhuri <ksharindam@gmail.com>       |
 |                                                                          |
 |   This program is free software: you can redistribute it and/or modify   |
 |   it under the terms of the GNU General Public License as published by   |
