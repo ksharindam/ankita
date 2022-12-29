@@ -11,3 +11,6 @@ cache/
 debian/
 dist/
 *.egg-info/
+build/
+ui_*.py
+*_rc.py

@@ -1,0 +1,3 @@
+#!/bin/sh
+cd ..
+pyuic5 -o ankita/ui_ankita.py files/ankita.ui

@@ -20,10 +20,10 @@ def readme():
 setup(
     name='ankita',
     version=__version__,
-    description = 'Well designed MS-Paint like paint program written in PyQt4',
+    description = 'Well designed MS-Paint like paint program written in PyQt5',
     long_description = readme(),
     long_description_content_type = 'text/markdown',
-    keywords = 'pyqt pyqt4 paint',
+    keywords = 'pyqt paint',
     url='http://github.com/ksharindam/ankita',
     author='Arindam Chaudhuri',
     author_email='ksharindam@gmail.com',

@@ -1,8 +1,9 @@
 # Ankita Paint
-A well designed MS-Paint like paint program written in PyQt4
+A well designed MS-Paint like paint program written in PyQt5  
 
 **Dependency**  
-* python3-pyqt4  
+* python3-pyqt5  
+* pyqt5-dev-tools  
 
 ### Description
 This paint program is aimed at ease of use, with many useful features.  
@@ -15,7 +16,16 @@ Build by running this command...
     `python3 setup.py compile`
 
 ### Installation
-To Install this program open terminal inside ankita-master directory.  
+To Install this program open terminal inside source root directory.  
+
+First build UI and resource files.
+```python  
+cd files  
+./compile_rc  
+./compile_ui  
+cd ..
+```
+
 And then run following command..  
     `sudo pip3 install .`  
 

@@ -3,10 +3,12 @@ import sys, os
 from random import randint
 from ctypes import *
 
-from PyQt4.QtCore import pyqtSignal, QPoint, Qt, QSettings
-from PyQt4.QtGui import (QApplication, QMainWindow, QLabel, QHBoxLayout, QGridLayout, QPixmap, QImage,
-    QPainter, QPainterPath, QPen, QBrush, qRgb, QColor, QCursor, QFont, QFontMetrics,
-    QFontComboBox, QSlider, QLineEdit, QTransform,
+from PyQt5.QtCore import pyqtSignal, QPoint, Qt, QSettings
+from PyQt5.QtGui import (QPainter, QPainterPath, QPen, QBrush, qRgb, QColor,
+    QTransform, QPixmap, QImage, QCursor, QFont, QFontMetrics, QScreen
+)
+from PyQt5.QtWidgets import (QApplication, QMainWindow, QLabel, QHBoxLayout, QGridLayout,
+    QFontComboBox, QSlider, QLineEdit,
     QDialog, QDialogButtonBox, QFileDialog, QColorDialog, QButtonGroup,
 )
 
@@ -35,7 +37,8 @@ default_clr_array = [
 ]
 
 pattern_array = [
-":/densedots.png", ":/dots.png", ":/zigzag.png", ":/brick.png", ":/hlines.png"
+":/textures/densedots.png", ":/textures/dots.png", ":/textures/zigzag.png",
+":/textures/brick.png", ":/textures/hlines.png"
 ]
 
 def brush_cursor(thickness):
@@ -65,7 +68,7 @@ class Label(QLabel):
         self.history = []
         self.current_index = -1
         self.scale = 1
-        self.setCursor(QCursor(QPixmap(":/cursor_pencil.png")))
+        self.setCursor(QCursor(QPixmap(":/icons/cursor_pencil.png")))
         #self.setCursor(brush_cursor(8))
         self.update()
         self.updateHistory()
@@ -216,7 +219,7 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
         self.spray_size = 24
         self.spray_density = 3
         self.brush_color = QColor(0,0,0,0)
-        self.brush_pattern = QPixmap(":/dots.png")
+        self.brush_pattern = QPixmap(pattern_array[1])
         self.painter = QPainter()
         self.pen = QPen()
         self.pen.setCapStyle(Qt.RoundCap)
@@ -333,7 +336,7 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
             self.btnMode = "pencil"
             self.pen.setWidth(0)
             self.linecolorBtn.setChecked(True)
-            self.canvas.setCursor(QCursor(QPixmap(":/cursor_pencil.png")))
+            self.canvas.setCursor(QCursor(QPixmap(":/icons/cursor_pencil.png")))
         elif self.btnGroup.id(button)==-3: # Brush
             self.btnMode = "pencil"
             self.pen.setWidth(self.brush_size)
@@ -353,7 +356,7 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
             self.eraserSizeSlider.valueChanged.connect(self.setEraserSize)
         elif self.btnGroup.id(button)==-4: # Floodfill
             self.fillcolorBtn.setChecked(True)
-            self.canvas.setCursor(QCursor(QPixmap(":/cursor_plus.png")))
+            self.canvas.setCursor(QCursor(QPixmap(":/icons/cursor_plus.png")))
         elif self.btnGroup.id(button)==-11: # Draw Text
             self.linecolorBtn.setChecked(True)
             self.labelText = QLabel("Enter Text :")
@@ -381,9 +384,9 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
         elif self.btnGroup.id(button)==-13: # curve
             self.cp1, self.cp2 = [], []
             self.pen.setWidth(self.line_width)
-            self.canvas.setCursor(QCursor(QPixmap(":/cursor_plus.png")))
+            self.canvas.setCursor(QCursor(QPixmap(":/icons/cursor_plus.png")))
         elif self.btnGroup.id(button)==-14: # Rounded rect
-            self.canvas.setCursor(QCursor(QPixmap(":/cursor_plus.png")))
+            self.canvas.setCursor(QCursor(QPixmap(":/icons/cursor_plus.png")))
             self.labelRoundness = QLabel("Roundness : {}%".format(self.corner_roundness))
             self.roundnessSlider = QSlider(Qt.Horizontal, self.frameOptions)
             self.roundnessSlider.setMinimum(4)
@@ -419,7 +422,7 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
             self.sprayDensitySlider.valueChanged.connect(self.setSprayDensity)
         else:
             self.pen.setWidth(self.line_width)
-            self.canvas.setCursor(QCursor(QPixmap(":/cursor_plus.png")))
+            self.canvas.setCursor(QCursor(QPixmap(":/icons/cursor_plus.png")))
 
     def onClick(self, pos, clicked=False):
         """ It is called when mouse is moved or clicked over canvas"""
@@ -1027,7 +1030,7 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
             self.settings.setValue("CanvasHeight", self.canvas.pixmap.height())
 
     def openImage(self):
-        filename = QFileDialog.getOpenFileName(self.centralwidget.window(),
+        filename, filter = QFileDialog.getOpenFileName(self.centralwidget.window(),
                                       "Select Image to Open", "",
                                       "All Files (*);;All Images (*.jpg *.png *.jpeg *.xpm *.gif *.svg);;PNG Image (*.png);;JPEG Image (*.jpg *.jpeg);;SVG Image (*.svg)" )
         if filename != '':
@@ -1047,7 +1050,7 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
             self.saveImageAs()
 
     def saveImageAs(self):
-        filename = QFileDialog.getSaveFileName(self.centralwidget.window(),
+        filename, filter = QFileDialog.getSaveFileName(self.centralwidget.window(),
                                       "Set FileName to Save", self.filename,
                                       "All Images (*.jpg *.png *.jpeg);;PNG Image (*.png);;JPEG Image (*.jpg)" )
         if filename == '': return
@@ -1074,14 +1077,14 @@ class ColorPicker(QLabel):
         self.setFrameShape(0x0002)
         self.setToolTip("Color Picker")
         self.setSizePolicy(0, 0) #QSizePolicy.Fixed
-        self.setPixmap(QPixmap(":/color_picker.png"))
+        self.setPixmap(QPixmap(":/icons/color_picker.png"))
         self.grab_mode = False
 
     def mousePressEvent(self, ev):
         if self.grab_mode:
             x = self.mapToGlobal(ev.pos()).x()
             y = self.mapToGlobal(ev.pos()).y()
-            image = QPixmap.grabWindow(QApplication.desktop().winId(),x,y,1,1).toImage()
+            image = QApplication.primaryScreen().grabWindow(QApplication.desktop().winId(),x,y,1,1).toImage()
             color = QColor(image.pixel(0,0))
             self.colorSelected.emit(color)
 
@@ -1093,7 +1096,7 @@ class ColorPicker(QLabel):
             return
         self.grabMouse()
         self.grab_mode = True
-        self.setCursor(QCursor(QPixmap(":/cursor_plus.png")))
+        self.setCursor(QCursor(QPixmap(":/icons/cursor_plus.png")))
 
 
 class NewImageDialog(QDialog):
