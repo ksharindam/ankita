@@ -3,7 +3,7 @@ import sys, os
 from random import randint
 from ctypes import *
 
-from PyQt5.QtCore import pyqtSignal, QPoint, Qt, QSettings
+from PyQt5.QtCore import pyqtSignal, QPoint, QPointF, Qt, QSettings
 from PyQt5.QtGui import (QPainter, QPainterPath, QPen, QBrush, qRgb, QColor,
     QTransform, QPixmap, QImage, QCursor, QFont, QFontMetrics, QScreen
 )
@@ -54,9 +54,9 @@ def brush_cursor(thickness):
 
 class Label(QLabel):
     """ It is the Canvas on which drawing is done """
-    mouseClicked = pyqtSignal(QPoint, bool)
-    mouseReleased = pyqtSignal(QPoint)
-    mouseMoved = pyqtSignal(QPoint)
+    mouseClicked = pyqtSignal(QPointF, bool)
+    mouseReleased = pyqtSignal(QPointF)
+    mouseMoved = pyqtSignal(QPointF)
 
     def __init__(self, width, height, parent):
         super(Label, self).__init__(parent)
@@ -75,14 +75,14 @@ class Label(QLabel):
 
     def mousePressEvent(self, ev):
         self.mouse_pressed = True
-        self.mouseClicked.emit(QPoint(ev.x()/self.scale, ev.y()/self.scale), True)
+        self.mouseClicked.emit(QPointF((ev.x()/self.scale), ev.y()/self.scale), True)
         #print "%ix%i"%(ev.x(),ev.y())
 
     def mouseMoveEvent(self, ev):
-        self.mouseMoved.emit(QPoint(ev.x()/self.scale, ev.y()/self.scale))
+        self.mouseMoved.emit(QPointF(ev.x()/self.scale, ev.y()/self.scale))
 
     def mouseReleaseEvent(self, ev):
-        self.mouseReleased.emit(QPoint(ev.x()/self.scale, ev.y()/self.scale))
+        self.mouseReleased.emit(QPointF(ev.x()/self.scale, ev.y()/self.scale))
         self.mouse_pressed = False
 
     def setPixmap(self, pixmap):
@@ -1212,19 +1212,19 @@ def calcspline(points, cp1, cp2):
             cp1_y = points[i].y() + (r*cy)
             cp2_x = points[i].x() - (s*cx)
             cp2_y = points[i].y() - (s*cy)
-            cp1.append(QPoint(cp1_x, cp1_y)) # cp1[i]
-            cp2.append(QPoint(cp2_x, cp2_y)) # cp2[i-1]
+            cp1.append(QPointF(cp1_x, cp1_y)) # cp1[i]
+            cp2.append(QPointF(cp2_x, cp2_y)) # cp2[i-1]
             # Evaluate control_point1 near first knot point
             if i==1 :
               t = 3.0*s*s;
               cp1_x = cp2[0].x() - (t*bx)
               cp1_y = cp2[0].y() - (t*by)
-              cp1.insert(0, QPoint(cp1_x, cp1_y)) # cp1[0]
+              cp1.insert(0, QPointF(cp1_x, cp1_y)) # cp1[0]
             # Evaluate control_point2 near last knot point
             t = 3.0*r*r
             cp2_x = cp1[i].x() + (t*ax)
             cp2_y = cp1[i].y() + (t*ay)
-            cp2.append(QPoint(cp2_x, cp2_y)) # cp2[i]
+            cp2.append(QPointF(cp2_x, cp2_y)) # cp2[i]
     if len(cp2) > 3: cp2.pop(-3)
     return cp1, cp2
 
