@@ -3,7 +3,7 @@ import sys, os
 from random import randint
 from ctypes import *
 
-from PyQt5.QtCore import pyqtSignal, QPoint, QPointF, Qt, QSettings
+from PyQt5.QtCore import pyqtSignal, QPoint, QPointF, QRectF, Qt, QSettings
 from PyQt5.QtGui import (QPainter, QPainterPath, QPen, QBrush, qRgb, QColor,
     QTransform, QPixmap, QImage, QCursor, QFont, QFontMetrics, QScreen
 )
@@ -799,7 +799,7 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
             self.painter.begin(self.canvas.pixmap)
             self.painter.setPen(self.pen)
             self.painter.setFont(font)
-            self.painter.drawText(pos.x(),pos.y(), w,h, Qt.AlignLeft|Qt.AlignVCenter, text)
+            self.painter.drawText(QRectF(pos.x(),pos.y(), w,h), Qt.AlignLeft|Qt.AlignVCenter, text)
             self.painter.end()
             self.canvas.update()
             self.canvas.updateHistory()
