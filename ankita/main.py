@@ -54,9 +54,9 @@ def brush_cursor(thickness):
 
 class Label(QLabel):
     """ It is the Canvas on which drawing is done """
-    mouseClicked = pyqtSignal(QPointF, bool)
-    mouseReleased = pyqtSignal(QPointF)
-    mouseMoved = pyqtSignal(QPointF)
+    mouseClicked = pyqtSignal(QPoint, bool)
+    mouseReleased = pyqtSignal(QPoint)
+    mouseMoved = pyqtSignal(QPoint)
 
     def __init__(self, width, height, parent):
         super(Label, self).__init__(parent)
@@ -75,14 +75,17 @@ class Label(QLabel):
 
     def mousePressEvent(self, ev):
         self.mouse_pressed = True
-        self.mouseClicked.emit(QPointF((ev.x()/self.scale), ev.y()/self.scale), True)
+        pos = QPointF((ev.x()/self.scale), ev.y()/self.scale).toPoint()
+        self.mouseClicked.emit(pos, True)
         #print "%ix%i"%(ev.x(),ev.y())
 
     def mouseMoveEvent(self, ev):
-        self.mouseMoved.emit(QPointF(ev.x()/self.scale, ev.y()/self.scale))
+        pos = QPointF(ev.x()/self.scale, ev.y()/self.scale).toPoint()
+        self.mouseMoved.emit(pos)
 
     def mouseReleaseEvent(self, ev):
-        self.mouseReleased.emit(QPointF(ev.x()/self.scale, ev.y()/self.scale))
+        pos = QPointF(ev.x()/self.scale, ev.y()/self.scale).toPoint()
+        self.mouseReleased.emit(pos)
         self.mouse_pressed = False
 
     def setPixmap(self, pixmap):
@@ -623,7 +626,7 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
                 self.canvas.setPixmap(pm)
 
     def setCornerRoundness(self, value):
-        self.corner_roundness = value
+        self.corner_roundness = int(round(value))
         self.labelRoundness.setText("Roundness : {}%".format(value))
 
     def drawpolyline(self, pos, clicked):
