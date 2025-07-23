@@ -1,0 +1,3 @@
+#!/bin/sh
+
+pyuic5 -o ../ankita/ui_mainwindow.py mainwindow.ui

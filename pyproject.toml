@@ -1,0 +1,20 @@
+# see https://packaging.python.org/en/latest/guides/writing-pyproject-toml/
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools>=70.1.0"]
+
+[tool.setuptools.dynamic]
+version = {attr = "ankita.__version__"}
+
+[project]
+name = "ankita"
+authors = [
+    {name = "Arindam Chaudhuri", email = "ksharindam@gmail.com"},
+]
+license = "GPL-3.0-or-later"
+requires-python = ">=3.7"
+
+dynamic = ["version"]
+
+[project.gui-scripts]
+ankita = "ankita.main:main"

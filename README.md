@@ -10,37 +10,10 @@ This paint program is aimed at ease of use, with many useful features.
 This is a MS-Paint or xpaint alternative for linux users. But to increase  
 ease of use, it is single window program (unlike xpaint).
 
-### Build
-If can build the c++ extension lib for fast floodfill if you have a slow computer.  
-Build by running this command...  
-    `python3 setup.py compile`
-
 ### Installation
 To Install this program open terminal inside source root directory.  
-
-First build UI and resource files.
-```python  
-cd files  
-./compile_rc  
-./compile_ui  
-cd ..
-```
-
-And then run following command..  
-    `sudo pip3 install .`  
+And then run...  
+`sudo pip3 install --no-build-isolation .`  
 
 To uninstall run..  
-    `sudo pip3 uninstall ankita`
-
-
-### Usage
-To run after installing, type command..  
-  `ankita`  
-Or  
-  `ankita image.jpg`  
-If you want to run this program without/before installing, then  
-Open terminal and change directory to ankita-master and run  
-  `./run.sh`  
-Or  
-  `./run.sh image.jpg`  
-
+`sudo pip3 uninstall ankita`  

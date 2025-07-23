@@ -1,50 +1,29 @@
-import os
 from setuptools import setup
-from distutils.cmd import Command
-from ankita import __version__
+from setuptools.command.bdist_wheel import bdist_wheel
+from subprocess import check_call
 
-class Build(Command):
-    description = 'build c/c++ extensions'
-    user_options = []     # The format is [long option, short option, description]
-    def initialize_options(self):
-        pass
+
+# allows to run commands before building wheel
+class BdistWheel(bdist_wheel):
     def finalize_options(self):
-        pass
-    def run(self):
-        os.system("make --directory=lib")
+        bdist_wheel.finalize_options(self)
+        check_call("pyrcc5 -o ./ankita/resources_rc.py ./data/resources.qrc".split())
+        check_call("pyuic5 -o ./ankita/ui_mainwindow.py ./data/mainwindow.ui".split())
+        check_call("make --directory=lib".split())
 
-def readme():
-    with open('README.md') as f:
-        return f.read()
 
 setup(
     name='ankita',
-    version=__version__,
-    description = 'Well designed MS-Paint like paint program written in PyQt5',
-    long_description = readme(),
-    long_description_content_type = 'text/markdown',
-    keywords = 'pyqt paint',
-    url='http://github.com/ksharindam/ankita',
-    author='Arindam Chaudhuri',
-    author_email='ksharindam@gmail.com',
-    license='GNU GPLv3',
+    #version=__version__,
     packages=['ankita'],
-    classifiers=[
-    'Development Status :: 5 - Production/Stable',
-    'Environment :: X11 Applications :: Qt',
-    'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
-    'Operating System :: POSIX :: Linux',
-    'Programming Language :: Python :: 3.7',
-    'Topic :: Multimedia :: Graphics',
-    ],
     entry_points={
-      'console_scripts': ['ankita=ankita.main:main'],
+        'gui_scripts': ['ankita=ankita.main:main'],
     },
     data_files=[
-             ('share/applications', ['files/ankita.desktop']),
-             ('share/icons', ['files/ankita.png'])
+             ('share/applications', ['data/ankita.desktop']),
+             ('share/icons', ['data/ankita.png'])
     ],
-    cmdclass = {'compile' : Build},     # using {'build' : Build} gives error
+    cmdclass = {'bdist_wheel': BdistWheel},
     include_package_data=True,
     zip_safe=False,
     )

@@ -14,7 +14,7 @@
    <string>Ankita</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="ankita.qrc">
+   <iconset resource="resources.qrc">
     <normaloff>:/icons/ankita.png</normaloff>:/icons/ankita.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -36,7 +36,7 @@
             <string>Straight Line</string>
            </property>
            <property name="icon">
-            <iconset resource="ankita.qrc">
+            <iconset resource="resources.qrc">
              <normaloff>:/icons/line.png</normaloff>:/icons/line.png</iconset>
            </property>
            <property name="iconSize">
@@ -56,7 +56,7 @@
             <string>Pencil</string>
            </property>
            <property name="icon">
-            <iconset resource="ankita.qrc">
+            <iconset resource="resources.qrc">
              <normaloff>:/icons/pencil.png</normaloff>:/icons/pencil.png</iconset>
            </property>
            <property name="iconSize">
@@ -76,7 +76,7 @@
             <string>Rectangle</string>
            </property>
            <property name="icon">
-            <iconset resource="ankita.qrc">
+            <iconset resource="resources.qrc">
              <normaloff>:/icons/rectangle.png</normaloff>:/icons/rectangle.png</iconset>
            </property>
            <property name="iconSize">
@@ -96,7 +96,7 @@
             <string>Polygon</string>
            </property>
            <property name="icon">
-            <iconset resource="ankita.qrc">
+            <iconset resource="resources.qrc">
              <normaloff>:/icons/polygon.png</normaloff>:/icons/polygon.png</iconset>
            </property>
            <property name="iconSize">
@@ -116,7 +116,7 @@
             <string>Polyline</string>
            </property>
            <property name="icon">
-            <iconset resource="ankita.qrc">
+            <iconset resource="resources.qrc">
              <normaloff>:/icons/polyline.png</normaloff>:/icons/polyline.png</iconset>
            </property>
            <property name="iconSize">
@@ -136,7 +136,7 @@
             <string>Brush</string>
            </property>
            <property name="icon">
-            <iconset resource="ankita.qrc">
+            <iconset resource="resources.qrc">
              <normaloff>:/icons/brush.png</normaloff>:/icons/brush.png</iconset>
            </property>
            <property name="iconSize">
@@ -156,7 +156,7 @@
             <string>Oval</string>
            </property>
            <property name="icon">
-            <iconset resource="ankita.qrc">
+            <iconset resource="resources.qrc">
              <normaloff>:/icons/oval.png</normaloff>:/icons/oval.png</iconset>
            </property>
            <property name="iconSize">
@@ -183,7 +183,7 @@
             <string>Floodfill</string>
            </property>
            <property name="icon">
-            <iconset resource="ankita.qrc">
+            <iconset resource="resources.qrc">
              <normaloff>:/icons/floodfill.png</normaloff>:/icons/floodfill.png</iconset>
            </property>
            <property name="iconSize">
@@ -206,7 +206,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="ankita.qrc">
+            <iconset resource="resources.qrc">
              <normaloff>:/icons/eraser.png</normaloff>:/icons/eraser.png</iconset>
            </property>
            <property name="iconSize">
@@ -229,7 +229,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="ankita.qrc">
+            <iconset resource="resources.qrc">
              <normaloff>:/icons/roundedrect.png</normaloff>:/icons/roundedrect.png</iconset>
            </property>
            <property name="iconSize">
@@ -252,7 +252,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="ankita.qrc">
+            <iconset resource="resources.qrc">
              <normaloff>:/icons/curve.png</normaloff>:/icons/curve.png</iconset>
            </property>
            <property name="iconSize">
@@ -275,7 +275,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="ankita.qrc">
+            <iconset resource="resources.qrc">
              <normaloff>:/icons/spray.png</normaloff>:/icons/spray.png</iconset>
            </property>
            <property name="iconSize">
@@ -295,7 +295,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="ankita.qrc">
+            <iconset resource="resources.qrc">
              <normaloff>:/icons/text.png</normaloff>:/icons/text.png</iconset>
            </property>
            <property name="iconSize">
@@ -315,7 +315,7 @@
             <string>Arc</string>
            </property>
            <property name="icon">
-            <iconset resource="ankita.qrc">
+            <iconset resource="resources.qrc">
              <normaloff>:/icons/arc.png</normaloff>:/icons/arc.png</iconset>
            </property>
            <property name="iconSize">
@@ -338,7 +338,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="ankita.qrc">
+            <iconset resource="resources.qrc">
              <normaloff>:/icons/circle.png</normaloff>:/icons/circle.png</iconset>
            </property>
            <property name="iconSize">
@@ -443,7 +443,7 @@ to change colors</string>
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>248</width>
+         <width>254</width>
          <height>453</height>
         </rect>
        </property>
@@ -476,7 +476,7 @@ to change colors</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="ankita.qrc">
+            <iconset resource="resources.qrc">
              <normaloff>:/icons/undo.png</normaloff>:/icons/undo.png</iconset>
            </property>
           </widget>
@@ -490,7 +490,7 @@ to change colors</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="ankita.qrc">
+            <iconset resource="resources.qrc">
              <normaloff>:/icons/redo.png</normaloff>:/icons/redo.png</iconset>
            </property>
           </widget>
@@ -687,7 +687,7 @@ to change colors</string>
   </widget>
  </widget>
  <resources>
-  <include location="ankita.qrc"/>
+  <include location="resources.qrc"/>
  </resources>
  <connections/>
 </ui>

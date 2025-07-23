@@ -1,3 +1,0 @@
-#!/bin/sh
-cd ..
-pyrcc5 -o ankita/ankita_rc.py files/ankita.qrc

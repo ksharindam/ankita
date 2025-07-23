@@ -1,30 +1,30 @@
 <RCC>
   <qresource>
     <file>icons/ankita.png</file>
-    <file>icons/rectangle.png</file>
-    <file>icons/roundedrect.png</file>
     <file>icons/arc.png</file>
     <file>icons/brush.png</file>
+    <file>icons/circle.png</file>
+    <file>icons/color_picker.png</file>
+    <file>icons/cursor_pencil.png</file>
+    <file>icons/cursor_plus.png</file>
+    <file>icons/curve.png</file>
     <file>icons/eraser.png</file>
-    <file>icons/spray.png</file>
     <file>icons/floodfill.png</file>
     <file>icons/line.png</file>
-    <file>icons/curve.png</file>
     <file>icons/oval.png</file>
-    <file>icons/circle.png</file>
     <file>icons/pencil.png</file>
     <file>icons/polygon.png</file>
     <file>icons/polyline.png</file>
-    <file>icons/text.png</file>
-    <file>icons/color_picker.png</file>
-    <file>icons/undo.png</file>
+    <file>icons/rectangle.png</file>
     <file>icons/redo.png</file>
-    <file>icons/cursor_plus.png</file>
-    <file>icons/cursor_pencil.png</file>
+    <file>icons/roundedrect.png</file>
+    <file>icons/spray.png</file>
+    <file>icons/text.png</file>
+    <file>icons/undo.png</file>
     <file>textures/brick.png</file>
-    <file>textures/zigzag.png</file>
-    <file>textures/dots.png</file>
     <file>textures/densedots.png</file>
+    <file>textures/dots.png</file>
     <file>textures/hlines.png</file>
+    <file>textures/zigzag.png</file>
   </qresource>
 </RCC>

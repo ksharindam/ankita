@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QLabel, QHBoxLayout, QGr
 )
 
 sys.path.append(os.path.dirname(__file__))
-import ui_ankita
+import ui_mainwindow
 from __init__ import __version__
 
 try:
@@ -208,7 +208,7 @@ class PatternGrid(QLabel):
         self.patternSelected.emit(pattern)
 
 
-class Window(QMainWindow, ui_ankita.Ui_MainWindow):
+class Window(QMainWindow, ui_mainwindow.Ui_MainWindow):
     """ This class creates main window and all child widgets """
     def __init__(self):
         QMainWindow.__init__(self)
@@ -698,6 +698,7 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
             self.points.append(pos)
             if len(self.points) == 2:
                 r = sqrt((pos.x()-self.points[0].x())**2 + (pos.y()-self.points[0].y())**2)
+                r = int(round(r))
                 x = self.points[0].x()-r
                 y = self.points[0].y()-r
                 self.beginPainter(self.canvas.pixmap)
@@ -709,6 +710,7 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
         else:
             if len(self.points)==1:
                 r = sqrt((pos.x()-self.points[0].x())**2 + (pos.y()-self.points[0].y())**2)
+                r = int(round(r))
                 x = self.points[0].x()-r
                 y = self.points[0].y()-r
                 pm = self.canvas.pixmap.copy()
@@ -726,7 +728,8 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
                 y1 = self.points[0].y()
                 x2 = self.points[1].x()
                 y2 = self.points[1].y()
-                x,y,r,start_ang,extent_ang = calc_arc(x1,y1,x2,y2,pos.x(),pos.y())
+                result = calc_arc(x1,y1,x2,y2,pos.x(),pos.y())
+                x,y,r,start_ang,extent_ang = map(int, map(round, result))
                 self.beginPainter(self.canvas.pixmap)
                 self.painter.drawArc(x-r,y-r, 2*r,2*r, start_ang*16,extent_ang*16)
                 self.painter.end()
@@ -745,7 +748,8 @@ class Window(QMainWindow, ui_ankita.Ui_MainWindow):
                 y1 = self.points[0].y()
                 x2 = self.points[1].x()
                 y2 = self.points[1].y()
-                x,y,r,start_ang,extent_ang = calc_arc(x1,y1,x2,y2,pos.x(),pos.y())
+                result = calc_arc(x1,y1,x2,y2,pos.x(),pos.y())
+                x,y,r,start_ang,extent_ang = map(int, map(round, result))
                 pm = self.canvas.pixmap.copy()
                 self.beginPainter(pm)
                 self.painter.drawArc(x-r,y-r, 2*r,2*r, start_ang*16,extent_ang*16)
