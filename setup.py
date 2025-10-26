@@ -21,7 +21,7 @@ setup(
     },
     data_files=[
              ('share/applications', ['data/ankita.desktop']),
-             ('share/icons', ['data/ankita.png'])
+             ('share/icons/hicolor/scalable/apps', ['data/ankita.png'])
     ],
     cmdclass = {'bdist_wheel': BdistWheel},
     include_package_data=True,

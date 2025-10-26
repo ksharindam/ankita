@@ -7,7 +7,7 @@ Debian Dependency = python3-pyqt5
 Description = Well designed PyQt5 Paint program
 
 ............................................................................
-|   Copyright (C) 2016-2022 Arindam Chaudhuri <ksharindam@gmail.com>       |
+|   Copyright (C) 2016-2025 Arindam Chaudhuri <ksharindam@gmail.com>       |
 |                                                                          |
 |   This program is free software: you can redistribute it and/or modify   |
 |   it under the terms of the GNU General Public License as published by   |
